@@ -1,72 +1,88 @@
-import {useState, useCallback} from 'react'
-import {useDropzone} from 'react-dropzone'
+import { useCallback, useState } from 'react'
+import { useDropzone } from 'react-dropzone'
 import { formatSize } from '../lib/utils'
 
 interface FileUploaderProps {
     onFileSelect?: (file: File | null) => void;
 }
 
-const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
-    const onDrop = useCallback((acceptedFiles: File[]) => {
-        const file = acceptedFiles[0] || null;
+const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
 
-        onFileSelect?.(file);
+const FileUploader = ({ onFileSelect }: FileUploaderProps) => {
+    const [file, setFile] = useState<File | null>(null);
+    const [rejection, setRejection] = useState<string | null>(null);
+
+    const onDrop = useCallback((acceptedFiles: File[]) => {
+        const next = acceptedFiles[0] || null;
+        setRejection(null);
+        setFile(next);
+        onFileSelect?.(next);
     }, [onFileSelect]);
 
-    const maxFileSize = 20 * 1024 * 1024; // 20MB in bytes
+    const onDropRejected = useCallback(() => {
+        setRejection('THAT FILE IS NOT A PDF UNDER 20 MB');
+    }, []);
 
-    const {getRootProps, getInputProps, isDragActive, acceptedFiles} = useDropzone({
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
+        onDropRejected,
         multiple: false,
-        accept: { 'application/pdf': ['.pdf']},
-        maxSize: maxFileSize,
+        accept: { 'application/pdf': ['.pdf'] },
+        maxSize: MAX_FILE_SIZE,
     })
 
-    const file = acceptedFiles[0] || null;
-
-
+    const clear = () => {
+        setFile(null);
+        onFileSelect?.(null);
+    };
 
     return (
-        <div className="w-full gradient-border">
-            <div {...getRootProps()}>
+        <div className="flex flex-col gap-4 w-full">
+            <div
+                {...getRootProps()}
+                className={`border border-dashed px-8 py-12 text-center flex flex-col items-center gap-4
+                    cursor-pointer transition-colors duration-150 ${
+                        isDragActive
+                            ? 'border-accent bg-accent/10'
+                            : 'border-accent/40 bg-accent/[0.04] hover:border-accent/70'
+                    }`}
+            >
                 <input {...getInputProps()} />
-
-                <div className="space-y-4 cursor-pointer">
-                    {file ? (
-                        <div className="uploader-selected-file" onClick={(e) => e.stopPropagation()}>
-                            <img src="/images/pdf.png" alt="pdf" className="size-10" />
-                            <div className="flex items-center space-x-3">
-                                <div>
-                                    <p className="text-sm font-medium text-gray-700 truncate max-w-xs">
-                                        {file.name}
-                                    </p>
-                                    <p className="text-sm text-gray-500">
-                                        {formatSize(file.size)}
-                                    </p>
-                                </div>
-                            </div>
-                            <button className="p-2 cursor-pointer" onClick={(e) => {
-                                onFileSelect?.(null)
-                            }}>
-                                <img src="/icons/cross.svg" alt="remove" className="w-4 h-4" />
-                            </button>
-                        </div>
-                    ): (
-                        <div>
-                            <div className="mx-auto w-16 h-16 flex items-center justify-center mb-2">
-                                <img src="/icons/info.svg" alt="upload" className="size-20" />
-                            </div>
-                            <p className="text-lg text-gray-500">
-                                <span className="font-semibold">
-                                    Click to upload
-                                </span> or drag and drop
-                            </p>
-                            <p className="text-lg text-gray-500">PDF (max {formatSize(maxFileSize)})</p>
-                        </div>
-                    )}
+                <div className="w-[62px] h-[62px] border border-accent/40 flex items-center justify-center">
+                    <div className="w-0.5 h-[30px] bg-accent" />
                 </div>
+                <div className="text-lg md:text-[19px] font-medium">
+                    Drop a PDF, or <span className="text-accent">choose a file</span>
+                </div>
+                <div className="mono-faint">PDF · MAX {formatSize(MAX_FILE_SIZE)}</div>
             </div>
+
+            {rejection && (
+                <div className="font-mono uppercase text-[11px] tracking-[0.14em] text-flag">
+                    {rejection}
+                </div>
+            )}
+
+            {file && (
+                <div className="flex items-center justify-between gap-4 panel px-4.5 py-4">
+                    <div className="flex items-center gap-3.5 min-w-0">
+                        <img src="/images/pdf.png" alt="" className="w-8.5 h-8.5 object-contain" />
+                        <div className="min-w-0">
+                            <div className="text-base font-medium truncate">{file.name}</div>
+                            <div className="mono-faint">{formatSize(file.size)} · PDF</div>
+                        </div>
+                    </div>
+                    <button
+                        type="button"
+                        className="font-mono uppercase text-[11px] tracking-[0.14em] text-dim hover:text-ink cursor-pointer shrink-0"
+                        onClick={clear}
+                    >
+                        REMOVE
+                    </button>
+                </div>
+            )}
         </div>
     )
 }
+
 export default FileUploader

@@ -2,8 +2,10 @@ interface Resume {
     id: string;
     companyName?: string;
     jobTitle?: string;
+    jobDescription?: string;
     imagePath: string;
     resumePath: string;
+    createdAt?: string;
     feedback: Feedback;
 }
 

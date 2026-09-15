@@ -11,66 +11,58 @@ interface ATSProps {
 }
 
 const ATS: React.FC<ATSProps> = ({ score, suggestions }) => {
-  // Determine background gradient based on score
-  const gradientClass = score > 69
-    ? 'from-green-100'
-    : score > 49
-      ? 'from-yellow-100'
-      : 'from-red-100';
+  const passing = score > 69;
+  const partial = score > 49;
 
-  // Determine icon based on score
-  const iconSrc = score > 69
-    ? '/icons/ats-good.svg'
-    : score > 49
-      ? '/icons/ats-warning.svg'
-      : '/icons/ats-bad.svg';
+  const iconSrc = passing
+      ? '/icons/ats-good.svg'
+      : partial
+          ? '/icons/ats-warning.svg'
+          : '/icons/ats-bad.svg';
 
-  // Determine subtitle based on score
-  const subtitle = score > 69
-    ? 'Great Job!'
-    : score > 49
-      ? 'Good Start'
-      : 'Needs Improvement';
+  const verdict = passing
+      ? 'likely to pass most filters'
+      : partial
+          ? 'some filters will trip on it'
+          : 'most filters will drop it';
+
+  const edge = passing
+      ? 'border-accent/30 bg-accent/5'
+      : partial
+          ? 'border-mid/30 bg-mid/5'
+          : 'border-flag/30 bg-flag/5';
 
   return (
-    <div className={`bg-gradient-to-b ${gradientClass} to-white rounded-2xl shadow-md w-full p-6`}>
-      {/* Top section with icon and headline */}
-      <div className="flex items-center gap-4 mb-6">
-        <img src={iconSrc} alt="ATS Score Icon" className="w-12 h-12" />
-        <div>
-          <h2 className="text-2xl font-bold">ATS Score - {score}/100</h2>
-        </div>
-      </div>
-
-      {/* Description section */}
-      <div className="mb-6">
-        <h3 className="text-xl font-semibold mb-2">{subtitle}</h3>
-        <p className="text-gray-600 mb-4">
-          This score represents how well your resume is likely to perform in Applicant Tracking Systems used by employers.
-        </p>
-
-        {/* Suggestions list */}
-        <div className="space-y-3">
-          {suggestions.map((suggestion, index) => (
-            <div key={index} className="flex items-start gap-3">
-              <img
-                src={suggestion.type === "good" ? "/icons/check.svg" : "/icons/warning.svg"}
-                alt={suggestion.type === "good" ? "Check" : "Warning"}
-                className="w-5 h-5 mt-1"
-              />
-              <p className={suggestion.type === "good" ? "text-green-700" : "text-amber-700"}>
-                {suggestion.tip}
-              </p>
+      <div className={`border ${edge} px-5 py-4.5 flex flex-col gap-4`}>
+        <div className="flex items-start gap-4.5">
+          <img src={iconSrc} alt="" className="w-9 h-9 shrink-0" />
+          <div>
+            <div className="text-lg md:text-[19px] font-medium">
+              ATS score {score} — {verdict}
             </div>
-          ))}
+            <div className="text-[15px] leading-relaxed text-muted mt-1">
+              This is how the resume reads to the software that screens it before a person does.
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Closing encouragement */}
-      <p className="text-gray-700 italic">
-        Keep refining your resume to improve your chances of getting past ATS filters and into the hands of recruiters.
-      </p>
-    </div>
+        {suggestions.length > 0 && (
+            <div className="flex flex-col gap-2.5 pt-4 border-t border-hairline">
+              {suggestions.map((suggestion, index) => (
+                  <div key={index} className="flex items-start gap-3.5">
+                    <span
+                        className={`font-mono text-[13px] leading-6 ${
+                            suggestion.type === 'good' ? 'text-accent' : 'text-flag'
+                        }`}
+                    >
+                      {suggestion.type === 'good' ? '✓' : '!'}
+                    </span>
+                    <p className="text-[15px] leading-relaxed text-muted">{suggestion.tip}</p>
+                  </div>
+              ))}
+            </div>
+        )}
+      </div>
   )
 }
 

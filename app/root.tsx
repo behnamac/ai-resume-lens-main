@@ -21,7 +21,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;700&display=swap",
   },
 ];
 
@@ -75,14 +75,23 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
-      {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
-          <code>{stack}</code>
-        </pre>
-      )}
+    <main className="ground-center min-h-screen flex flex-col">
+      <div className="screen-bar">
+        <span className="wordmark">SIGNAL</span>
+        <span className="mono-meta text-flag">ERROR</span>
+      </div>
+      <div className="flex-1 flex flex-col justify-center gap-6 px-6 md:px-10 py-16 max-w-3xl">
+        <h1 className="display text-5xl md:text-6xl">{message}</h1>
+        <p className="text-lg leading-relaxed text-muted">{details}</p>
+        {stack && (
+          <pre className="panel w-full p-4 overflow-x-auto font-mono text-xs text-dim">
+            <code>{stack}</code>
+          </pre>
+        )}
+        <a href="/" className="btn-outline w-fit">
+          BACK TO ALL SCANS
+        </a>
+      </div>
     </main>
   );
 }

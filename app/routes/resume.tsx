@@ -1,12 +1,14 @@
-import {Link, useNavigate, useParams} from "react-router";
-import {useEffect, useState} from "react";
-import {usePuterStore} from "~/lib/puter";
+import { Link, useNavigate, useParams } from "react-router";
+import { useEffect, useState } from "react";
+import { usePuterStore } from "~/lib/puter";
 import Summary from "~/components/Summary";
 import ATS from "~/components/ATS";
 import Details from "~/components/Details";
+import ScoreRing from "~/components/ScoreRing";
+import { numberWord, scanStamp } from "~/lib/signal";
 
 export const meta = () => ([
-    { title: 'ResumeLens | Review ' },
+    { title: 'Signal | Review' },
     { name: 'description', content: 'Detailed overview of your resume' },
 ])
 
@@ -16,6 +18,8 @@ const Resume = () => {
     const [imageUrl, setImageUrl] = useState('');
     const [resumeUrl, setResumeUrl] = useState('');
     const [feedback, setFeedback] = useState<Feedback | null>(null);
+    const [target, setTarget] = useState({ companyName: '', jobTitle: '', createdAt: '' });
+    const [missing, setMissing] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -26,60 +30,132 @@ const Resume = () => {
         const loadResume = async () => {
             const resume = await kv.get(`resume:${id}`);
 
-            if(!resume) return;
+            if(!resume) return setMissing(true);
 
             const data = JSON.parse(resume);
+            setTarget({
+                companyName: data.companyName || '',
+                jobTitle: data.jobTitle || '',
+                createdAt: data.createdAt || '',
+            });
 
             const resumeBlob = await fs.read(data.resumePath);
-            if(!resumeBlob) return;
-
-            const pdfBlob = new Blob([resumeBlob], { type: 'application/pdf' });
-            const resumeUrl = URL.createObjectURL(pdfBlob);
-            setResumeUrl(resumeUrl);
+            if(resumeBlob) {
+                const pdfBlob = new Blob([resumeBlob], { type: 'application/pdf' });
+                setResumeUrl(URL.createObjectURL(pdfBlob));
+            }
 
             const imageBlob = await fs.read(data.imagePath);
-            if(!imageBlob) return;
-            const imageUrl = URL.createObjectURL(imageBlob);
-            setImageUrl(imageUrl);
+            if(imageBlob) setImageUrl(URL.createObjectURL(imageBlob));
 
-            setFeedback(data.feedback);
+            if(data.feedback) setFeedback(data.feedback);
+            else setMissing(true);
         }
 
         loadResume();
     }, [id]);
 
+    const flagged = feedback
+        ? [feedback.toneAndStyle, feedback.content, feedback.structure, feedback.skills]
+            .flatMap((category) => category.tips || [])
+            .filter((tip) => tip.type === 'improve').length
+        : 0;
+
+    const lead = feedback
+        ? feedback.overallScore > 70 ? 'Strong' : feedback.overallScore > 49 ? 'Solid' : 'Weak'
+        : '';
+
+    const targetLine = [target.companyName, target.jobTitle]
+        .filter(Boolean)
+        .join(' / ')
+        .toUpperCase();
+
     return (
-        <main className="!pt-0">
-            <nav className="resume-nav">
-                <Link to="/" className="back-button">
-                    <img src="/icons/back.svg" alt="logo" className="w-2.5 h-2.5" />
-                    <span className="text-gray-800 text-sm font-semibold">Back to Homepage</span>
-                </Link>
-            </nav>
-            <div className="flex flex-row w-full max-lg:flex-col-reverse">
-                <section className="feedback-section bg-[url('/images/bg-small.svg') bg-cover h-[100vh] sticky top-0 items-center justify-center">
-                    {imageUrl && resumeUrl && (
-                        <div className="animate-in fade-in duration-1000 gradient-border max-sm:m-0 h-[90%] max-wxl:h-fit w-fit">
-                            <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
-                                <img
-                                    src={imageUrl}
-                                    className="w-full h-full object-contain rounded-2xl"
-                                    title="resume"
-                                />
-                            </a>
-                        </div>
+        <main className="ground-left min-h-screen flex flex-col">
+            <header className="screen-bar">
+                <div className="flex items-center gap-6">
+                    <Link to="/" className="wordmark">SIGNAL</Link>
+                    <Link to="/" className="nav-link">&larr; ALL SCANS</Link>
+                </div>
+                <div className="flex items-center gap-4">
+                    <span className="mono-meta">SCAN · {scanStamp(target.createdAt)}</span>
+                    <Link to="/upload" className="btn-quiet">RE-SCAN</Link>
+                </div>
+            </header>
+
+            <div className="flex-1 flex flex-col lg:flex-row min-h-0">
+                <aside className="w-full lg:w-[480px] shrink-0 lg:border-r border-hairline p-6 md:p-8 flex flex-col gap-4.5 lg:sticky lg:top-0 lg:h-screen">
+                    {imageUrl ? (
+                        <>
+                            <div className="border border-accent/25 p-3.5 min-h-0 flex-1 overflow-hidden">
+                                <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
+                                    <img
+                                        src={imageUrl}
+                                        alt="Your resume"
+                                        title="Open the PDF"
+                                        className="block w-full h-full max-h-[740px] object-cover object-top grayscale contrast-110 brightness-90"
+                                    />
+                                </a>
+                            </div>
+                            <div className="flex justify-between mono-faint">
+                                <span>{flagged} FLAGGED {flagged === 1 ? 'FINDING' : 'FINDINGS'}</span>
+                                {resumeUrl && (
+                                    <a href={resumeUrl} target="_blank" rel="noopener noreferrer" className="text-dim hover:text-ink">
+                                        OPEN PDF
+                                    </a>
+                                )}
+                            </div>
+                        </>
+                    ) : (
+                        <div className="flex-1 border border-hairline animate-signal-pulse" />
                     )}
-                </section>
-                <section className="feedback-section">
-                    <h2 className="text-4xl !text-black font-bold">Resume Review</h2>
+                </aside>
+
+                <section className="flex-1 px-6 md:px-10 py-8 flex flex-col gap-6.5 min-w-0">
+                    <div className="flex justify-between items-start gap-8">
+                        <div>
+                            {targetLine && <div className="mono-label">{targetLine}</div>}
+                            <h1 className="display text-4xl md:text-5xl lg:text-[52px] mt-2.5">
+                                {feedback ? (
+                                    flagged > 0 ? (
+                                        <>{lead}, with<br />{numberWord(flagged).toLowerCase()} {flagged === 1 ? 'gap' : 'gaps'}.</>
+                                    ) : (
+                                        <>{lead}, with<br />nothing flagged.</>
+                                    )
+                                ) : missing ? (
+                                    <>This scan has<br />no report.</>
+                                ) : (
+                                    <>Compiling<br />the report.</>
+                                )}
+                            </h1>
+                        </div>
+                        {feedback && <ScoreRing score={feedback.overallScore} />}
+                    </div>
+
                     {feedback ? (
-                        <div className="flex flex-col gap-8 animate-in fade-in duration-1000">
-                            <Summary feedback={feedback} />
+                        <div className="flex flex-col gap-6.5 animate-in fade-in duration-700">
                             <ATS score={feedback.ATS.score || 0} suggestions={feedback.ATS.tips || []} />
-                            <Details feedback={feedback} />
+                            <Summary feedback={feedback} />
+                            <div className="flex flex-col gap-3.5">
+                                <div className="mono-label">PRIORITY FINDINGS</div>
+                                <Details feedback={feedback} />
+                            </div>
+                        </div>
+                    ) : missing ? (
+                        <div className="flex flex-col gap-5 max-w-[520px]">
+                            <p className="text-lg leading-relaxed text-muted">
+                                The analysis for this scan never finished, so there is nothing to
+                                read here. Run it again and Signal will keep the new report.
+                            </p>
+                            <Link to="/upload" className="btn-signal w-fit">RUN IT AGAIN</Link>
                         </div>
                     ) : (
-                        <img src="/images/resume-scan-2.gif" className="w-full" />
+                        <div className="flex flex-col gap-5 py-10">
+                            <div className="w-64 h-px bg-hairline relative overflow-hidden">
+                                <div className="absolute inset-y-0 w-1/3 bg-accent animate-sweep" />
+                            </div>
+                            <span className="mono-faint">READING THE REPORT</span>
+                        </div>
                     )}
                 </section>
             </div>

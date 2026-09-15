@@ -1,15 +1,19 @@
-import {Link} from "react-router";
+import type { ReactNode } from "react";
+import { Link } from "react-router";
 
-const Navbar = () => {
+/** The bar that tops every screen: wordmark left, machine readout right. */
+const Navbar = ({ meta, children }: { meta?: ReactNode; children?: ReactNode }) => {
     return (
-        <nav className="navbar">
-            <Link to="/">
-                <p className="text-2xl font-bold text-gradient">RESUMELENS</p>
-            </Link>
-            <Link to="/upload" className="primary-button w-fit">
-                Upload Resume
-            </Link>
-        </nav>
-    )
-}
-export default Navbar
+        <header className="screen-bar">
+            <div className="flex items-center gap-6">
+                <Link to="/" className="wordmark">
+                    SIGNAL
+                </Link>
+                {meta}
+            </div>
+            <nav className="flex items-center gap-5 md:gap-6">{children}</nav>
+        </header>
+    );
+};
+
+export default Navbar;

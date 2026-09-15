@@ -1,5 +1,9 @@
 import { create } from "zustand";
 
+// Model id as listed by https://api.puter.com/puterai/chat/models
+// (the registry uses provider-qualified ids). Swap here to change models.
+const FEEDBACK_MODEL = "anthropic:anthropic/claude-opus-5";
+
 declare global {
     interface Window {
         puter: {
@@ -350,7 +354,7 @@ export const usePuterStore = create<PuterStore>((set, get) => {
                     ],
                 },
             ],
-            { model: "claude-3-7-sonnet" }
+            { model: FEEDBACK_MODEL }
         ) as Promise<AIResponse | undefined>;
     };
 

@@ -41,6 +41,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Links />
       </head>
       <body>
+        {/* Must run before the SDK loads: puter.js checks this flag on construction. */}
+        <script
+          dangerouslySetInnerHTML={{ __html: "window.PUTER_QUIET = true;" }}
+        />
         <script src="https://js.puter.com/v2/"></script>
         {children}
         <ScrollRestoration />

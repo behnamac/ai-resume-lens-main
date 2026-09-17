@@ -48,3 +48,31 @@ export const scanStamp = (iso?: string) => {
     return `${scanDate(iso)} ${date
         .toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
 };
+
+/** The six passes a scan runs, in order — shown live during a scan and in the explainer. */
+export const SCAN_STEPS = [
+    {
+        label: "UPLOAD FILE",
+        blurb: "Your PDF is written to your own Puter drive. It never lands on a server of ours.",
+    },
+    {
+        label: "RENDER PAGE IMAGE",
+        blurb: "The first page is rendered to an image, so the report can show you what was read.",
+    },
+    {
+        label: "UPLOAD PREVIEW",
+        blurb: "That page image is stored next to the PDF, in the same drive.",
+    },
+    {
+        label: "PREPARE SCAN",
+        blurb: "The role and the listing you pasted are folded into the instructions for the model.",
+    },
+    {
+        label: "ANALYSE RESUME",
+        blurb: "The model reads the resume against that listing and scores it — the slow pass.",
+    },
+    {
+        label: "COMPILE REPORT",
+        blurb: "Scores and line edits are parsed into the report you land on.",
+    },
+] as const;

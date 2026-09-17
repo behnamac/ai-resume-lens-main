@@ -74,7 +74,7 @@ const Resume = () => {
         <main className="ground-left min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
             <header className="screen-bar">
                 <div className="flex items-center gap-6">
-                    <Link to="/" className="wordmark">SIGNAL</Link>
+                    <Link to="/" className="wordmark">RESUME LENS</Link>
                     <Link to="/" className="nav-link">&larr; ALL SCANS</Link>
                 </div>
                 <div className="flex items-center gap-4">

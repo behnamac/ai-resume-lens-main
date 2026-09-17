@@ -77,7 +77,7 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   return (
     <main className="ground-center min-h-screen flex flex-col">
       <div className="screen-bar">
-        <span className="wordmark">SIGNAL</span>
+        <span className="wordmark">RESUME LENS</span>
         <span className="mono-meta text-flag">ERROR</span>
       </div>
       <div className="flex-1 flex flex-col justify-center gap-6 px-6 md:px-10 py-16 max-w-3xl">

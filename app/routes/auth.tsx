@@ -2,6 +2,8 @@ import { usePuterStore } from "~/lib/puter";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import ScanVisual from "~/components/ScanVisual";
+import Modal from "~/components/Modal";
+import HowItReads from "~/components/HowItReads";
 
 export const meta = () => ([
     { title: 'Signal | Sign in' },
@@ -13,7 +15,8 @@ const Auth = () => {
     const location = useLocation();
     const next = location.search.split('next=')[1];
     const navigate = useNavigate();
-    const [showSignIn, setShowSignIn] = useState(false);
+    /** Only one dialog is ever up: the sign-in panel or the explainer. */
+    const [overlay, setOverlay] = useState<'signin' | 'how' | null>(null);
 
     useEffect(() => {
         if(auth.isAuthenticated) navigate(next || '/');
@@ -21,7 +24,7 @@ const Auth = () => {
 
     useEffect(() => {
         const onKey = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setShowSignIn(false);
+            if (e.key === 'Escape') setOverlay(null);
         };
         window.addEventListener('keydown', onKey);
         return () => window.removeEventListener('keydown', onKey);
@@ -30,13 +33,18 @@ const Auth = () => {
     return (
         <main className="ground-center min-h-screen flex flex-col">
             <header className="screen-bar">
-                <span className="wordmark">SIGNAL</span>
+                <span className="wordmark">RESUME LENS</span>
                 <nav className="flex items-center gap-5 md:gap-6">
-                    <a href="#how-it-reads" className="nav-link">HOW IT READS</a>
+                    <button
+                        className="nav-link cursor-pointer"
+                        onClick={() => setOverlay('how')}
+                    >
+                        HOW IT READS
+                    </button>
                     {auth.isAuthenticated ? (
                         <button className="btn-outline" onClick={auth.signOut}>SIGN OUT</button>
                     ) : (
-                        <button className="btn-outline" onClick={() => setShowSignIn(true)}>SIGN IN</button>
+                        <button className="btn-outline" onClick={() => setOverlay('signin')}>SIGN IN</button>
                     )}
                 </nav>
             </header>
@@ -52,15 +60,12 @@ const Auth = () => {
                         the four things behind it, and the exact lines to change.
                     </p>
                     <div className="flex flex-wrap items-center gap-4">
-                        <button className="btn-signal" onClick={() => setShowSignIn(true)}>
+                        <button className="btn-signal" onClick={() => setOverlay('signin')}>
                             RUN YOUR FIRST SCAN
                         </button>
                         <span className="mono-faint">FREE PUTER ACCOUNT</span>
                     </div>
-                    <div
-                        id="how-it-reads"
-                        className="flex flex-wrap gap-11 pt-5 border-t border-hairline max-w-[560px]"
-                    >
+                    <div className="flex flex-wrap gap-11 pt-5 border-t border-hairline max-w-[560px]">
                         <div>
                             <div className="text-[34px] font-bold tracking-[-0.03em]">6</div>
                             <div className="font-mono uppercase text-[11px] tracking-[0.14em] text-dim">
@@ -93,46 +98,54 @@ const Auth = () => {
                 <div className="strip-cell">03&nbsp;&nbsp;SCORE + LINE EDITS</div>
             </div>
 
-            {showSignIn && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
-                    <div
-                        className="absolute inset-0 bg-void/70"
-                        onClick={() => setShowSignIn(false)}
+            {overlay === 'how' && (
+                <Modal
+                    label="HOW IT READS"
+                    meta="6 PASSES · ~40s"
+                    onClose={() => setOverlay(null)}
+                    className="max-w-[620px]"
+                >
+                    <HowItReads
+                        onStart={() => setOverlay('signin')}
+                        onClose={() => setOverlay(null)}
                     />
-                    <div className="relative w-full max-w-[520px] border border-edge bg-panel">
-                        <div className="flex justify-between items-center px-6 py-4 border-b border-hairline mono-label">
-                            <span>SESSION</span>
-                            <span className="text-accent">YOUR OWN DRIVE</span>
+                </Modal>
+            )}
+
+            {overlay === 'signin' && (
+                <Modal
+                    label="SESSION"
+                    meta="YOUR OWN DRIVE"
+                    onClose={() => setOverlay(null)}
+                >
+                    <div className="p-8 md:p-10 flex flex-col gap-6">
+                        <div>
+                            <h2 className="display text-4xl md:text-[44px] leading-none">Sign in</h2>
+                            <p className="mt-3 text-base leading-relaxed text-muted">
+                                Signal stores your resumes and scans in your own Puter drive.
+                                Signing in is how it reaches them.
+                            </p>
                         </div>
-                        <div className="p-8 md:p-10 flex flex-col gap-6">
-                            <div>
-                                <h2 className="display text-4xl md:text-[44px] leading-none">Sign in</h2>
-                                <p className="mt-3 text-base leading-relaxed text-muted">
-                                    Signal stores your resumes and scans in your own Puter drive.
-                                    Signing in is how it reaches them.
-                                </p>
+                        <button
+                            className="btn-signal"
+                            onClick={auth.signIn}
+                            disabled={isLoading}
+                        >
+                            {isLoading ? "OPENING SECURE WINDOW…" : "CONTINUE WITH PUTER"}
+                        </button>
+                        {error && (
+                            <div className="font-mono uppercase text-[11px] tracking-[0.14em] text-flag text-center">
+                                {error}
                             </div>
-                            <button
-                                className="btn-signal"
-                                onClick={auth.signIn}
-                                disabled={isLoading}
-                            >
-                                {isLoading ? "OPENING SECURE WINDOW…" : "CONTINUE WITH PUTER"}
-                            </button>
-                            {error && (
-                                <div className="font-mono uppercase text-[11px] tracking-[0.14em] text-flag text-center">
-                                    {error}
-                                </div>
-                            )}
-                            <button
-                                className="mono-faint text-center cursor-pointer hover:text-dim"
-                                onClick={() => setShowSignIn(false)}
-                            >
-                                CANCEL
-                            </button>
-                        </div>
+                        )}
+                        <button
+                            className="mono-faint text-center cursor-pointer hover:text-dim"
+                            onClick={() => setOverlay(null)}
+                        >
+                            CANCEL
+                        </button>
                     </div>
-                </div>
+                </Modal>
             )}
         </main>
     )

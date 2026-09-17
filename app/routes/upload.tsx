@@ -7,6 +7,7 @@ import ScanVisual from "~/components/ScanVisual";
 import { usePuterStore } from "~/lib/puter";
 import { convertPdfToImage } from "~/lib/pdf2img";
 import { formatSize, generateUUID } from "~/lib/utils";
+import { SCAN_STEPS } from "~/lib/signal";
 import { prepareInstructions } from "../../constants";
 
 export const meta = () => ([
@@ -14,14 +15,7 @@ export const meta = () => ([
     { name: 'description', content: 'Upload a resume and the listing you are aiming at.' },
 ])
 
-const STEPS = [
-    'UPLOAD FILE',
-    'RENDER PAGE IMAGE',
-    'UPLOAD PREVIEW',
-    'PREPARE SCAN',
-    'ANALYSE RESUME',
-    'COMPILE REPORT',
-];
+const STEPS = SCAN_STEPS.map((step) => step.label);
 
 const MAX_DESCRIPTION = 8000;
 

@@ -19,6 +19,7 @@
   --color-accent-lit: #8ff4dc;
   --color-mid: #ffc65b;
   --color-flag: #ff8a5b;
+  --color-exit: #ff5b5b;
 
   --color-hairline: rgba(232, 237, 247, 0.1);
   --color-hairline-soft: rgba(232, 237, 247, 0.06);
@@ -120,6 +121,15 @@
   }
   .btn-outline:hover {
     @apply bg-accent/10 text-accent;
+  }
+
+  /* Sign out lives where sign in did — same slot, red so the exit reads as an exit. */
+  .btn-exit {
+    @apply font-mono uppercase text-xs tracking-[0.12em] text-exit border border-exit/60
+      px-4 py-2.5 cursor-pointer transition-colors duration-150;
+  }
+  .btn-exit:hover {
+    @apply bg-exit/10 border-exit text-exit;
   }
 
   .btn-quiet {

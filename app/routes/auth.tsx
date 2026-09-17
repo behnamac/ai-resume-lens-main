@@ -42,7 +42,7 @@ const Auth = () => {
                         HOW IT READS
                     </button>
                     {auth.isAuthenticated ? (
-                        <button className="btn-outline" onClick={auth.signOut}>SIGN OUT</button>
+                        <button className="btn-exit" onClick={auth.signOut}>SIGN OUT</button>
                     ) : (
                         <button className="btn-outline" onClick={() => setOverlay('signin')}>SIGN IN</button>
                     )}

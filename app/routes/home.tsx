@@ -60,10 +60,8 @@ export default function Home() {
             )
           }
       >
-        <button className="nav-link cursor-pointer" onClick={auth.signOut}>
-          SIGN OUT
-        </button>
         <Link to="/upload" className="btn-outline">RUN NEW SCAN</Link>
+        <button className="btn-exit" onClick={auth.signOut}>SIGN OUT</button>
       </Navbar>
 
       {loadingResumes && (

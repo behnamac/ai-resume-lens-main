@@ -1,6 +1,7 @@
 import type { Route } from "./+types/home";
 import Navbar from "~/components/Navbar";
 import ResumeRow from "~/components/ResumeRow";
+import Modal from "~/components/Modal";
 import RevealText from "~/components/RevealText";
 import Reveal from "~/components/Reveal";
 import Counter from "~/components/Counter";
@@ -17,10 +18,13 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  const { auth, kv } = usePuterStore();
+  const { auth, fs, kv } = usePuterStore();
   const navigate = useNavigate();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [loadingResumes, setLoadingResumes] = useState(true);
+  const [pendingDelete, setPendingDelete] = useState<Resume | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     if(!auth.isAuthenticated) navigate('/auth?next=/');
@@ -42,6 +46,25 @@ export default function Home() {
 
     loadResumes()
   }, []);
+
+  /** Drop the record and the files it points at. A missing file should not block the record. */
+  const handleDelete = async (resume: Resume) => {
+    setDeletingId(resume.id);
+    setDeleteError(null);
+
+    try {
+      const paths = [resume.resumePath, resume.imagePath].filter(Boolean);
+      await Promise.all(paths.map((path) => fs.delete(path).catch(() => null)));
+      await kv.delete(`resume:${resume.id}`);
+
+      setResumes((prev) => prev.filter((item) => item.id !== resume.id));
+      setPendingDelete(null);
+    } catch {
+      setDeleteError("COULD NOT DELETE THAT SCAN. TRY AGAIN.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const scores = resumes
       .filter((resume) => Boolean(resume.feedback))
@@ -171,21 +194,73 @@ export default function Home() {
               )}
             </div>
 
-            <div className="hidden md:grid grid-cols-[80px_1fr_200px_120px_100px_120px] items-center gap-5 px-10 py-4 border-b border-hairline mono-label">
-              <div>SCORE</div>
-              <div>ROLE</div>
-              <div>COMPANY</div>
-              <div>SCANNED</div>
-              <div>ATS</div>
-              <div></div>
-            </div>
+            <div className="px-6 md:px-10 pb-16">
+              <div className="hidden md:grid grid-cols-[80px_1fr_200px_120px_100px_120px_44px] items-center gap-5 px-6 py-4 border-b border-hairline mono-label">
+                <div>SCORE</div>
+                <div>ROLE</div>
+                <div>COMPANY</div>
+                <div>SCANNED</div>
+                <div>ATS</div>
+                <div></div>
+                <div></div>
+              </div>
 
-            <div className="flex flex-col">
-              {resumes.map((resume) => (
-                  <ResumeRow key={resume.id} resume={resume} />
-              ))}
+              <div className="flex flex-col">
+                {resumes.map((resume) => (
+                    <ResumeRow
+                        key={resume.id}
+                        resume={resume}
+                        onDelete={setPendingDelete}
+                        deleting={deletingId === resume.id}
+                    />
+                ))}
+              </div>
             </div>
           </>
+      )}
+      {pendingDelete && (
+          <Modal
+              label="DELETE SCAN"
+              meta={pendingDelete.companyName || undefined}
+              onClose={() => {
+                if (deletingId) return;
+                setPendingDelete(null);
+                setDeleteError(null);
+              }}
+          >
+            <div className="px-6 py-6 flex flex-col gap-6">
+              <p className="text-base leading-relaxed text-muted">
+                This removes the scan for{" "}
+                <span className="text-ink">{pendingDelete.jobTitle || "this role"}</span>
+                {pendingDelete.companyName ? (
+                    <> at <span className="text-ink">{pendingDelete.companyName}</span></>
+                ) : null}
+                , along with the resume stored in your drive. It cannot be undone.
+              </p>
+
+              {deleteError && <div className="mono-faint text-flag">{deleteError}</div>}
+
+              <div className="flex flex-wrap gap-3">
+                <button
+                    className="btn-exit"
+                    onClick={() => handleDelete(pendingDelete)}
+                    disabled={Boolean(deletingId)}
+                >
+                  {deletingId ? "DELETING" : "DELETE SCAN"}
+                </button>
+                <button
+                    className="btn-quiet"
+                    onClick={() => {
+                      setPendingDelete(null);
+                      setDeleteError(null);
+                    }}
+                    disabled={Boolean(deletingId)}
+                >
+                  CANCEL
+                </button>
+              </div>
+            </div>
+          </Modal>
       )}
     </main>
   );

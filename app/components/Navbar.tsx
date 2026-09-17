@@ -7,7 +7,7 @@ const Navbar = ({ meta, children }: { meta?: ReactNode; children?: ReactNode }) 
         <header className="screen-bar">
             <div className="flex items-center gap-6">
                 <Link to="/" className="wordmark">
-                    SIGNAL
+                    RESUME LENS
                 </Link>
                 {meta}
             </div>

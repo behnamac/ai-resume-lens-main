@@ -87,13 +87,15 @@ const Resume = () => {
                 <aside className="w-full lg:w-[480px] shrink-0 lg:border-r border-hairline p-6 md:p-8 flex flex-col gap-4.5 min-h-0">
                     {imageUrl ? (
                         <>
-                            <div className="border border-accent/25 p-3.5 min-h-0 flex-1 overflow-hidden max-lg:h-[520px]">
-                                <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
+                            {/* The frame follows the page: full width, natural height, never cropped
+                                side to side. A short viewport clips the foot of the page, not its margins. */}
+                            <div className="border border-accent/25 p-3.5 min-h-0 overflow-hidden max-lg:max-h-[520px]">
+                                <a href={resumeUrl} target="_blank" rel="noopener noreferrer" className="block">
                                     <img
                                         src={imageUrl}
                                         alt="Your resume"
                                         title="Open the PDF"
-                                        className="block w-full h-full object-cover object-top"
+                                        className="block w-full h-auto"
                                         style={{ filter: "grayscale(1) contrast(1.1) brightness(0.9)" }}
                                     />
                                 </a>

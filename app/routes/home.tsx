@@ -54,12 +54,21 @@ export default function Home() {
 
     try {
       const paths = [resume.resumePath, resume.imagePath].filter(Boolean);
-      await Promise.all(paths.map((path) => fs.delete(path).catch(() => null)));
+      await Promise.all(
+          paths.map((path) =>
+              fs.delete(path).catch((err) => {
+                // A 404 here means the drive no longer holds that file. The record still goes.
+                console.warn(`[signal] could not delete ${path}`, err);
+                return null;
+              })
+          )
+      );
       await kv.delete(`resume:${resume.id}`);
 
       setResumes((prev) => prev.filter((item) => item.id !== resume.id));
       setPendingDelete(null);
-    } catch {
+    } catch (err) {
+      console.error("[signal] delete failed", err);
       setDeleteError("COULD NOT DELETE THAT SCAN. TRY AGAIN.");
     } finally {
       setDeletingId(null);

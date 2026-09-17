@@ -38,7 +38,9 @@ declare global {
             kv: {
                 get: (key: string) => Promise<string | null>;
                 set: (key: string, value: string) => Promise<boolean>;
-                delete: (key: string) => Promise<boolean>;
+                /** Puter names this `del`; older snippets say `delete`. Both are optional here. */
+                del?: (key: string) => Promise<boolean>;
+                delete?: (key: string) => Promise<boolean>;
                 list: (pattern: string, returnValues?: boolean) => Promise<string[]>;
                 flush: () => Promise<boolean>;
             };
@@ -391,7 +393,12 @@ export const usePuterStore = create<PuterStore>((set, get) => {
             setError("Puter.js not available");
             return;
         }
-        return puter.kv.delete(key);
+        const del = puter.kv.del ?? puter.kv.delete;
+        if (!del) {
+            setError("Puter.js has no key delete method");
+            return;
+        }
+        return del.call(puter.kv, key);
     };
 
     const listKV = async (pattern: string, returnValues?: boolean) => {

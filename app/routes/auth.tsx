@@ -54,17 +54,7 @@ const Auth = () => {
 
             <div className="flex-1 flex flex-col lg:flex-row">
                 <div className="w-full lg:w-[56%] px-6 md:px-10 py-16 lg:py-0 flex flex-col justify-center gap-8">
-                    {/* The hero lands in order: label, headline, promise, action, numbers. */}
-                    <RevealText
-                        className="mono-eyebrow"
-                        unit="chars"
-                        delay={0.1}
-                        duration={0.5}
-                        stagger={0.012}
-                        distance={90}
-                    >
-                        RESUME ANALYSIS — ATS SCORING
-                    </RevealText>
+                    {/* The hero lands in order: headline, promise, action, numbers. */}
                     <RevealText
                         as="h1"
                         className="display text-5xl md:text-7xl lg:text-[86px] lg:leading-[0.95] max-w-[660px] text-pretty"

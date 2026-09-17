@@ -1,6 +1,9 @@
 import type { Route } from "./+types/home";
 import Navbar from "~/components/Navbar";
 import ResumeRow from "~/components/ResumeRow";
+import RevealText from "~/components/RevealText";
+import Reveal from "~/components/Reveal";
+import Counter from "~/components/Counter";
 import { usePuterStore } from "~/lib/puter";
 import { Link, useNavigate } from "react-router";
 import { useEffect, useState } from "react";
@@ -79,31 +82,56 @@ export default function Home() {
               <div className="absolute w-[620px] h-[620px] rounded-full border border-ink/5" />
               <div className="absolute w-[400px] h-[400px] rounded-full border border-ink/[0.07]" />
               <div className="relative flex flex-col items-center gap-7 text-center max-w-[600px]">
-                <div className="w-24 h-24 border border-accent/35 flex items-center justify-center animate-signal-pulse">
+                <Reveal
+                    className="w-24 h-24 border border-accent/35 flex items-center justify-center animate-signal-pulse"
+                    delay={0.1}
+                    distance={0}
+                >
                   <div className="w-0.5 h-13 bg-accent" />
-                </div>
-                <h1 className="display text-4xl md:text-5xl lg:text-[52px] leading-[1.02]">
+                </Reveal>
+                <RevealText
+                    as="h1"
+                    className="display text-4xl md:text-5xl lg:text-[52px] leading-[1.02]"
+                    unit="words"
+                    delay={0.3}
+                    duration={0.8}
+                    stagger={0.07}
+                >
                   Nothing scanned yet
-                </h1>
-                <p className="text-lg leading-relaxed text-muted max-w-[480px]">
+                </RevealText>
+                <RevealText
+                    as="p"
+                    className="text-lg leading-relaxed text-muted max-w-[480px]"
+                    delay={0.55}
+                    duration={0.8}
+                    stagger={0.07}
+                >
                   Upload a resume and paste the listing you want it measured against.
                   The first scan takes about forty seconds.
-                </p>
-                <Link to="/upload" className="btn-signal">UPLOAD A RESUME</Link>
+                </RevealText>
+                <Reveal delay={0.85}>
+                  <Link to="/upload" className="btn-signal">UPLOAD A RESUME</Link>
+                </Reveal>
               </div>
             </div>
-            <div className="strip">
+            <Reveal className="strip" delay={1} distance={14} stagger={0.12}>
               <div className="strip-cell text-faint">PDF UP TO 20 MB</div>
               <div className="strip-cell text-faint">ONE PAGE OR TWO</div>
               <div className="strip-cell text-faint">STORED IN YOUR OWN DRIVE</div>
-            </div>
+            </Reveal>
           </>
       )}
 
       {!loadingResumes && resumes.length > 0 && (
           <>
             <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-10 px-6 md:px-10 pt-12 pb-9 border-b border-hairline">
-              <h1 className="display text-5xl md:text-6xl lg:text-[72px] max-w-[620px]">
+              <RevealText
+                  as="h1"
+                  className="display text-5xl md:text-6xl lg:text-[72px] max-w-[620px]"
+                  delay={0.1}
+                  duration={0.95}
+                  stagger={0.1}
+              >
                 {numberWord(resumes.length)} scan{resumes.length === 1 ? "" : "s"}.{" "}
                 {ready > 0 ? (
                     <>
@@ -112,28 +140,34 @@ export default function Home() {
                 ) : (
                     <>None worth sending yet.</>
                 )}
-              </h1>
+              </RevealText>
               {scores.length > 0 && (
-                  <div className="flex gap-10 md:gap-13 pb-2.5">
+                  <Reveal className="flex gap-10 md:gap-13 pb-2.5" delay={0.45} stagger={0.12}>
                     <div>
                       <div className="mono-label">MEDIAN</div>
-                      <div className="text-5xl font-bold tracking-[-0.03em] leading-tight">
-                        {median(scores)}
-                      </div>
+                      <Counter
+                          value={median(scores)}
+                          delay={0.65}
+                          className="block text-5xl font-bold tracking-[-0.03em] leading-tight"
+                      />
                     </div>
                     <div>
                       <div className="mono-label">BEST</div>
-                      <div className="text-5xl font-bold tracking-[-0.03em] leading-tight text-accent">
-                        {best}
-                      </div>
+                      <Counter
+                          value={best}
+                          delay={0.75}
+                          className="block text-5xl font-bold tracking-[-0.03em] leading-tight text-accent"
+                      />
                     </div>
                     <div>
                       <div className="mono-label">SCORED</div>
-                      <div className="text-5xl font-bold tracking-[-0.03em] leading-tight">
-                        {scores.length}
-                      </div>
+                      <Counter
+                          value={scores.length}
+                          delay={0.85}
+                          className="block text-5xl font-bold tracking-[-0.03em] leading-tight"
+                      />
                     </div>
-                  </div>
+                  </Reveal>
               )}
             </div>
 

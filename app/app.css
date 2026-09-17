@@ -172,6 +172,12 @@
     @apply border border-hairline bg-panel;
   }
 
+  /* A split line keeps a sliver of room under it, so the mask that clips its
+     reveal does not also clip the tails of g, y and p. */
+  .reveal-line {
+    padding-bottom: 0.12em;
+  }
+
   /* Ground: the same radial the artboards sit on. */
   .ground-center {
     background: radial-gradient(120% 90% at 50% 0%, #131a2a 0%, #07090f 62%);

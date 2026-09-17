@@ -109,7 +109,7 @@ export default function Home() {
                 {numberWord(resumes.length)} scan{resumes.length === 1 ? "" : "s"}.{" "}
                 {ready > 0 ? (
                     <>
-                      <span className="text-accent">{numberWord(ready).toLowerCase()}</span> worth sending.
+                      <span className="text-accent">{numberWord(ready)}</span> worth sending.
                     </>
                 ) : (
                     <>None worth sending yet.</>

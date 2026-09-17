@@ -7,20 +7,22 @@ const ScanVisual = ({
     caption,
     width = 270,
     height = 360,
+    paused = false,
 }: {
     src?: string;
     caption?: string;
     width?: number;
     height?: number;
+    paused?: boolean;
 }) => {
     return (
         <div className="relative flex items-center justify-center overflow-hidden w-full h-full min-h-[440px]">
             <div
-                className="absolute rounded-full border border-accent/15 animate-ring"
+                className={`absolute rounded-full border border-accent/15 ${paused ? "" : "animate-ring"}`}
                 style={{ width: 560, height: 560 }}
             />
             <div
-                className="absolute rounded-full border border-accent/20 animate-ring [animation-delay:2s]"
+                className={`absolute rounded-full border border-accent/20 ${paused ? "" : "animate-ring [animation-delay:2s]"}`}
                 style={{ width: 380, height: 380 }}
             />
             <div
@@ -37,16 +39,18 @@ const ScanVisual = ({
                     <img
                         src={src}
                         alt="Resume being scanned"
-                        className="block object-cover object-top opacity-55 grayscale contrast-125"
-                        style={{ width, height }}
+                        className="block object-cover object-top opacity-55"
+                        style={{ width, height, filter: "grayscale(1) contrast(1.2)" }}
                     />
                 ) : (
                     <div
-                        className="bg-panel/60 animate-signal-pulse"
+                        className={`bg-panel/60 ${paused ? "" : "animate-signal-pulse"}`}
                         style={{ width, height }}
                     />
                 )}
-                <div className="absolute left-3.5 right-3.5 top-1/2 h-0.5 animate-scan bg-gradient-to-r from-transparent via-accent to-transparent" />
+                {!paused && (
+                    <div className="absolute left-3.5 right-3.5 top-1/2 h-0.5 animate-scan bg-gradient-to-r from-transparent via-accent to-transparent" />
+                )}
             </div>
 
             {caption && (

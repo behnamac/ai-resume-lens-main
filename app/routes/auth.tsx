@@ -9,7 +9,7 @@ export const meta = () => ([
 ])
 
 const Auth = () => {
-    const { isLoading, auth } = usePuterStore();
+    const { isLoading, error, auth } = usePuterStore();
     const location = useLocation();
     const next = location.search.split('next=')[1];
     const navigate = useNavigate();
@@ -119,6 +119,11 @@ const Auth = () => {
                             >
                                 {isLoading ? "OPENING SECURE WINDOW…" : "CONTINUE WITH PUTER"}
                             </button>
+                            {error && (
+                                <div className="font-mono uppercase text-[11px] tracking-[0.14em] text-flag text-center">
+                                    {error}
+                                </div>
+                            )}
                             <button
                                 className="mono-faint text-center cursor-pointer hover:text-dim"
                                 onClick={() => setShowSignIn(false)}

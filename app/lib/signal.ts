@@ -29,27 +29,22 @@ export const median = (values: number[]) => {
         : Math.round((sorted[mid - 1] + sorted[mid]) / 2);
 };
 
+export const scanDate = (iso?: string) => {
+    if (!iso) return "—";
+    const date = new Date(iso);
+    if (Number.isNaN(date.getTime())) return "—";
+    const [day, month] = date
+        .toLocaleDateString("en-GB", { day: "2-digit", month: "short" })
+        .toUpperCase()
+        .split(" ");
+    return `${day} ${month.slice(0, 3)}`;
+};
+
 /** "12 SEP 11:04" — the machine's date format. */
 export const scanStamp = (iso?: string) => {
     if (!iso) return "—";
     const date = new Date(iso);
     if (Number.isNaN(date.getTime())) return "—";
-    return date
-        .toLocaleString("en-GB", {
-            day: "2-digit",
-            month: "short",
-            hour: "2-digit",
-            minute: "2-digit",
-        })
-        .toUpperCase()
-        .replace(",", " ·");
-};
-
-export const scanDate = (iso?: string) => {
-    if (!iso) return "—";
-    const date = new Date(iso);
-    if (Number.isNaN(date.getTime())) return "—";
-    return date
-        .toLocaleDateString("en-GB", { day: "2-digit", month: "short" })
-        .toUpperCase();
+    return `${scanDate(iso)} ${date
+        .toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}`;
 };

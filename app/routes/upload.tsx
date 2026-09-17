@@ -101,7 +101,9 @@ const Upload = () => {
         if(!file) return;
 
         setTarget({ companyName, jobTitle });
-        handleAnalyze({ companyName, jobTitle, jobDescription, file });
+        handleAnalyze({ companyName, jobTitle, jobDescription, file }).catch((err) => {
+            fail(err instanceof Error ? err.message : 'Something went wrong during the scan.');
+        });
     }
 
     const targetLine = [target.companyName, target.jobTitle]
@@ -154,7 +156,7 @@ const Upload = () => {
                     </div>
 
                     <div className="hidden lg:flex w-[42%] border-l border-hairline items-center justify-center">
-                        <ScanVisual src={previewUrl || undefined} width={250} height={340} />
+                        <ScanVisual src={previewUrl || undefined} width={250} height={340} paused={Boolean(error)} />
                     </div>
                 </div>
 

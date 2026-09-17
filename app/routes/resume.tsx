@@ -71,7 +71,7 @@ const Resume = () => {
         .toUpperCase();
 
     return (
-        <main className="ground-left min-h-screen flex flex-col">
+        <main className="ground-left min-h-screen lg:h-screen flex flex-col lg:overflow-hidden">
             <header className="screen-bar">
                 <div className="flex items-center gap-6">
                     <Link to="/" className="wordmark">SIGNAL</Link>
@@ -84,16 +84,17 @@ const Resume = () => {
             </header>
 
             <div className="flex-1 flex flex-col lg:flex-row min-h-0">
-                <aside className="w-full lg:w-[480px] shrink-0 lg:border-r border-hairline p-6 md:p-8 flex flex-col gap-4.5 lg:sticky lg:top-0 lg:h-screen">
+                <aside className="w-full lg:w-[480px] shrink-0 lg:border-r border-hairline p-6 md:p-8 flex flex-col gap-4.5 min-h-0">
                     {imageUrl ? (
                         <>
-                            <div className="border border-accent/25 p-3.5 min-h-0 flex-1 overflow-hidden">
+                            <div className="border border-accent/25 p-3.5 min-h-0 flex-1 overflow-hidden max-lg:h-[520px]">
                                 <a href={resumeUrl} target="_blank" rel="noopener noreferrer">
                                     <img
                                         src={imageUrl}
                                         alt="Your resume"
                                         title="Open the PDF"
-                                        className="block w-full h-full max-h-[740px] object-cover object-top grayscale contrast-110 brightness-90"
+                                        className="block w-full h-full object-cover object-top"
+                                        style={{ filter: "grayscale(1) contrast(1.1) brightness(0.9)" }}
                                     />
                                 </a>
                             </div>
@@ -111,7 +112,7 @@ const Resume = () => {
                     )}
                 </aside>
 
-                <section className="flex-1 px-6 md:px-10 py-8 flex flex-col gap-6.5 min-w-0">
+                <section className="flex-1 min-w-0 min-h-0 lg:overflow-y-auto px-6 md:px-10 py-8 flex flex-col gap-6.5">
                     <div className="flex justify-between items-start gap-8">
                         <div>
                             {targetLine && <div className="mono-label">{targetLine}</div>}
@@ -136,10 +137,7 @@ const Resume = () => {
                         <div className="flex flex-col gap-6.5 animate-in fade-in duration-700">
                             <ATS score={feedback.ATS.score || 0} suggestions={feedback.ATS.tips || []} />
                             <Summary feedback={feedback} />
-                            <div className="flex flex-col gap-3.5">
-                                <div className="mono-label">PRIORITY FINDINGS</div>
-                                <Details feedback={feedback} />
-                            </div>
+                            <Details feedback={feedback} />
                         </div>
                     ) : missing ? (
                         <div className="flex flex-col gap-5 max-w-[520px]">

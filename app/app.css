@@ -105,8 +105,10 @@
 
   .btn-signal {
     @apply font-mono uppercase text-[13px] font-bold tracking-[0.12em] bg-accent text-ground
-      px-6 py-4 text-center cursor-pointer transition-colors duration-150 disabled:opacity-40
-      disabled:cursor-not-allowed;
+      px-6 py-4 text-center cursor-pointer transition-colors duration-150;
+  }
+  .btn-signal:disabled {
+    @apply bg-transparent border border-edge text-faint cursor-not-allowed;
   }
   .btn-signal:not(:disabled):hover {
     @apply bg-accent-lit text-ground;

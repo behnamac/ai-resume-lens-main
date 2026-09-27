@@ -1,5 +1,6 @@
 import { useRef, type ElementType, type ReactNode } from "react";
-import { EASE, SplitText, gsap, useGSAP, withMotion } from "~/lib/motion";
+import { EASE, gsap, useGSAP, withMotion } from "~/lib/motion";
+import { SplitText } from "~/lib/splitText.client";
 
 type Unit = "lines" | "words" | "chars";
 

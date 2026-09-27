@@ -3,10 +3,9 @@
 // under "prefers-reduced-motion: reduce" nothing runs and the markup is the
 // finished state already — text is readable, numbers read their real value.
 import { gsap } from "gsap";
-import { SplitText } from "gsap/SplitText";
 import { useGSAP } from "@gsap/react";
 
-gsap.registerPlugin(useGSAP, SplitText);
+gsap.registerPlugin(useGSAP);
 
 /** The one curve the product moves on: fast out of the gate, long settle. */
 export const EASE = "power3.out";
@@ -19,4 +18,4 @@ export const withMotion = (build: () => void | (() => void)) => {
     return () => mm.revert();
 };
 
-export { gsap, SplitText, useGSAP };
+export { gsap, useGSAP };
